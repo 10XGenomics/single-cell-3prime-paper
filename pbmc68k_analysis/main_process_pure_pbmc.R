@@ -43,9 +43,10 @@ subsampled_purified_mats <- lapply(1:length(all_data), function(i) { # subsample
   cat(sprintf("%d...\n", i))
   .downsample_gene_bc_mtx(all_json[[i]], all_data[[i]], all_mol_info[[i]], tgt_rpc, 'conf_mapped_reads')[[1]]
 } )
-# ------------------------------------------
+# -------------------------------------------
 # run PCA and tSNE on down-sampled data
-# ------------------------------------------
+# the steps take a long time to complete
+# -------------------------------------------
 # using 10 PCs provides enough information to filter out undesired populations from purified populations
 set.seed(1)
 all_pure_pca<-lapply(1:length(subsampled_purified_mats),function(i) pure_pca_i<-.do_propack(subsampled_purified_mats[[i]],10))
