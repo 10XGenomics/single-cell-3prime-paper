@@ -11,6 +11,7 @@ library(ggplot2)
 library(Rtsne)
 library(svd)
 library(dplyr)
+library(plyr)
 library(data.table)
 library(pheatmap)
 # -------------------------------------
@@ -50,6 +51,7 @@ m_n_1000<-m_n[,head(order(-df$dispersion_norm),1000)]
 pca_n_1000<-.do_propack(m_n_1000,50)
 # --------------------------------------------
 # generate 2-D tSNE embedding
+# this step may take a long time
 # --------------------------------------------
 tsne_n_1000<-Rtsne(pca_n_1000$pca,pca=F)
 tdf_n_1000<-data.frame(tsne_n_1000$Y)
