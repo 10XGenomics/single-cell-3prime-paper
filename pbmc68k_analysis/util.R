@@ -25,11 +25,11 @@ load_purified_pbmc_types<-function(pure_select_file,pure_gene_ens) {
 # train a multinomial (averging)
 # -----------------------------------
 .compare_by_cor<-function(m_filt,use_gene_ids,dmap_data) {
-  
+
   sig_genes <- intersect(use_gene_ids, rownames(dmap_data))
   m_forsig <- as.matrix(m_filt[,which(use_gene_ids %in% sig_genes)])
   sig_data_filt <- dmap_data[match(use_gene_ids[which(use_gene_ids %in% sig_genes)], rownames(dmap_data)),]
-  
+
   z <- lapply(1:ncol(sig_data_filt), function(j) sapply(1:nrow(m_forsig), function(i) cor(m_forsig[i,], sig_data_filt[,j], method='spearman')))
   z <- do.call(cbind, z)
   colnames(z) <- colnames(sig_data_filt)
@@ -56,11 +56,11 @@ load_purified_pbmc_types<-function(pure_select_file,pure_gene_ens) {
                stringsAsFactors=F)
   } ) )
   subclu_specific_genes_pos_score <- unique((gene_scores %>% group_by(subclu) %>% arrange(pos_score) %>% top_n(n, -pos_score) %>% ungroup())$gene)
-  
+
   subclu_specific_gene_data <- km_avg[,match(subclu_specific_genes_pos_score, use_genes)]
   colnames(subclu_specific_gene_data) <- subclu_specific_genes_pos_score
   rownames(subclu_specific_gene_data)<-clus_id
-  
+
   sub_nor<-scale(subclu_specific_gene_data)
   list(sub_nor=sub_nor,gene_scores=gene_scores)
 }
@@ -71,7 +71,7 @@ load_purified_pbmc_types<-function(pure_select_file,pure_gene_ens) {
   # create file name
   x <- id
   x <- gsub('+','',x,fixed = TRUE); x <- gsub('-','',x,fixed = TRUE)
-  x <- gsub(' ','_',x,fixed = TRUE); x <- gsub('/','_',x,fixed = TRUE)  
+  x <- gsub(' ','_',x,fixed = TRUE); x <- gsub('/','_',x,fixed = TRUE)
   filepath <- file.path(dir,paste(x,'_',marker,'.png',sep=""))
   ggsave(file=filepath,ggp,width=width,height=height)
   cat('Saved figure to: ',filepath,'\n')
@@ -84,17 +84,17 @@ load_purified_pbmc_types<-function(pure_select_file,pure_gene_ens) {
     idx<-match(marker,genes)
     goi<-.normalize_by_gene(mat[,idx])
     p <- ggplot(tsne_df,aes(X1,X2,col=goi))+geom_point(size=0)+ggtitle(paste(title,'(',marker,')')) +
-      theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) 
+      theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
     midpnt <- 0.5
     if (style == 'type1') {
       min_lim <- min(goi); max_lim <- max(goi)
-      if (marker == 'CD8A') {midpnt <- 0; min_lim <- -1}      
+      if (marker == 'CD8A') {midpnt <- 0; min_lim <- -1}
       p <- p + scale_colour_gradient2(low="royalblue3",high="red",mid="white",midpoint=midpnt,limits=c(min_lim,max_lim),
-                                      guide=guide_colorbar(barwidth = 0.8, barheight = 5)) 
+                                      guide=guide_colorbar(barwidth = 0.8, barheight = 5))
     } else if (style == 'type2') {
       if (marker == 'FCER1A') {midpnt <- 1}
       if (marker == 'S100A8') {midpnt <- 0.3}
-      p <- p + scale_colour_gradient2(low="olivedrab1",high="red",mid="white",midpoint=midpnt, 
+      p <- p + scale_colour_gradient2(low="olivedrab1",high="red",mid="white",midpoint=midpnt,
                                       guide=guide_colorbar(barwidth = 0.8, barheight = 5))
     }
     if (is.null(dir)) {
@@ -107,20 +107,24 @@ load_purified_pbmc_types<-function(pure_select_file,pure_gene_ens) {
 # ---------------------------------------------------------
 # plot cluster heatmap and save cluster specific genes
 # ---------------------------------------------------------
-plot_heatmap_and_write_genes <- function(n_clust,tsne_df,mat,genes,dir) {
+.plot_heatmap_and_write_genes <- function(n_clust,tsne_df,mat,genes,dir,topic) {
   clu<-c(1:n_clust)
   km_centers <- do.call(cbind, lapply(1:n_clust,function(i) .train_multinomial(mat[which(tsne_df$k == clu[i]),])))
   km_avg<-t(km_centers)
   sub_nor<-.get_cluster_specific_genes(km_avg,genes,clu,10)
-  write.table(sub_nor$gene_scores,file = dir,sep="\t",quote=F,row.names = F)
-  pheatmap(sub_nor$sub_nor,cluster_rows = T,cluster_cols = T,fontsize_col=8,color=grey.colors(8))
+  tsv_fpath <- file.path(dir, paste0(topic, '.tsv'))
+  write.table(sub_nor$gene_scores,file=tsv_fpath,sep="\t",quote=F,row.names = F)
+  fig_fpath <- file.path(dir, paste0(topic, '.pdf'))
+  pheatmap(sub_nor$sub_nor,cluster_rows = T,cluster_cols = T,fontsize_col=8,
+           color=grey.colors(8),
+           filename = fig_fpath, width = 10, height = 15)
 }
 # --------------------------------------------------
 # get variable genes from normalized UMI counts
 # --------------------------------------------------
 # m: matrix normalized by UMI counts
 .get_variable_gene<-function(m) {
-  
+
   df<-data.frame(mean=colMeans(m),cv=apply(m,2,sd)/colMeans(m),var=apply(m,2,var))
   df$dispersion<-with(df,var/mean)
   df$mean_bin<-with(df,cut(mean,breaks=c(-Inf,quantile(mean,seq(0.1,1,0.05)),Inf)))
@@ -134,7 +138,7 @@ plot_heatmap_and_write_genes <- function(n_clust,tsne_df,mat,genes,dir) {
   df
 }
 # -----------------------------------------------------
-# compute top n principle components with propack 
+# compute top n principle components with propack
 # -----------------------------------------------------
 .do_propack <- function(x,n) {
   use_genes <- which(colSums(x) > 1)
@@ -233,11 +237,11 @@ plot_heatmap_and_write_genes <- function(n_clust,tsne_df,mat,genes,dir) {
 # ----------------------------------------
 .set_pbmc_color_11<-function() {
   myColors <- c( "dodgerblue2",
-                      "green4", 
+                      "green4",
                       "#6A3D9A", # purple
                        "grey",
                        "tan4",
-                       "yellow", 
+                       "yellow",
                       "#FF7F00", # orange
                       "black",
                       "#FB9A99", # pink
