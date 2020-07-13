@@ -11,9 +11,9 @@ For any questions about the data and the analysis, please contact support@10xgen
  
 All of the data were processed by the Cell Ranger 1.1 pipeline. The processed data used for the single cell RNA-seq secondary analysis are stored in three R data files:
 
-* [pbmc68k_data.rds](http://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc68k_rds/pbmc68k_data.rds) (77MB): consists of the gene expression profiles of ~68k PBMCs
-* [all_pure_pbmc_data.rds](http://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc68k_rds/all_pure_pbmc_data.rds) (1.5GB): consists of the gene expression profiles of 10 bead-enriched PBMC samples
-* [all_pure_select_11types.rds](http://s3-us-west-2.amazonaws.com/10x.files/samples/cell/pbmc68k_rds/all_pure_select_11types.rds) (687KB): consists of the gene expression and meta-information of the 11 sub-populations of PBMC identified from the 10 samples
+* [pbmc68k_data.rds](https://cf.10xgenomics.com/samples/cell/pbmc68k_rds/pbmc68k_data.rds) (77MB): consists of the gene expression profiles of ~68k PBMCs
+* [all_pure_pbmc_data.rds](https://cf.10xgenomics.com/samples/cell/pbmc68k_rds/all_pure_pbmc_data.rds) (1.5GB): consists of the gene expression profiles of 10 bead-enriched PBMC samples
+* [all_pure_select_11types.rds](https://cf.10xgenomics.com/samples/cell/pbmc68k_rds/all_pure_select_11types.rds) (687KB): consists of the gene expression and meta-information of the 11 sub-populations of PBMC identified from the 10 samples
 
 ## Scripts
 
