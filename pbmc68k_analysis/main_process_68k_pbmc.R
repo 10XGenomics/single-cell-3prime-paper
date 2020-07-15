@@ -20,7 +20,7 @@ library(pheatmap)
 DATA_DIR <- "PATH_TO_DATA_DIRECTORY"        # SPECIFY HERE
 PROG_DIR <- "PATH_TO_PROGRAM_DIRECTORY"     # SPECIFY HERE
 RES_DIR  <- "PATH_TO_RESULT_DIRECTORY"      # SPECIFY HERE
-source(file.path(PROG_DIR,'util.R')) 
+source(file.path(PROG_DIR,'util.R'))
 # ------------------------------------------------------------
 # load 68k PBMC data, 11 purified PBMC data and meta-data
 # ------------------------------------------------------------
@@ -32,9 +32,9 @@ purified_ref_11 <- load_purified_pbmc_types(pure_11,pbmc_68k$ens_genes)
 # normalize by RNA content (umi counts) and select the top 1000 most variable genes
 # --------------------------------------------------------------------------------------
 m<-all_data[[1]]$hg19$mat
-l<-.normalize_by_umi(m)   
+l<-.normalize_by_umi(m)
 m_n<-l$m
-df<-.get_variable_gene(m_n) 
+df<-.get_variable_gene(m_n)
 disp_cut_off<-sort(df$dispersion_norm,decreasing=T)[1000]
 df$used<-df$dispersion_norm >= disp_cut_off
 # --------------------------------------------------
@@ -44,7 +44,7 @@ df$used<-df$dispersion_norm >= disp_cut_off
 ggplot(df,aes(mean,dispersion,col=used))+geom_point(size=0.5)+scale_x_log10()+scale_y_log10()+
   scale_color_manual(values=c("grey","black"))+theme_classic()
 # --------------------------------------------
-# use top 1000 variable genes for PCA 
+# use top 1000 variable genes for PCA
 # --------------------------------------------
 set.seed(0)
 m_n_1000<-m_n[,head(order(-df$dispersion_norm),1000)]
@@ -63,7 +63,7 @@ m_filt<-m_n_1000
 use_genes_n<-order(-df$dispersion_norm)
 use_genes_n_id<-all_data[[1]]$hg19$gene_symbols[l$use_genes][order(-df$dispersion_norm)]
 use_genes_n_ens<-all_data[[1]]$hg19$genes[l$use_genes][order(-df$dispersion_norm)]
-z_1000_11<-.compare_by_cor(m_filt,use_genes_n_ens[1:1000],purified_ref_11) 
+z_1000_11<-.compare_by_cor(m_filt,use_genes_n_ens[1:1000],purified_ref_11)
 # reassign IDs, as there're some overlaps in the purified pbmc populations
 test<-.reassign_pbmc_11(z_1000_11)
 cls_id<-factor(colnames(z_1000_11)[test])
@@ -90,7 +90,7 @@ ggplot(tdf_n_1000,aes(X1,X2,col=as.factor(k)))+geom_point(size=0,alpha=0.6)+them
 # -------------------------------------------------
 # plot heatmap with gene clusters and write the genes to file
 .plot_heatmap_and_write_genes(n_clust=10, tsne_df=tdf_n_1000, mat=m_n_1000, genes=use_genes_n_id[1:1000],
-                              dir=file.path(RES_DIR,"k10_marker_genes.tsv"))
+                              dir=RES_DIR, topic="k10_marker_genes")
 markers <- c("HLA-DRA","CD3D","CD8A","NKG7")
 .plot_gene_expression(markers=markers, genes=all_data[[1]]$hg19$gene_symbols, mat=all_data[[1]]$hg19$mat,
                       tsne_df=tdf_n_1000, style='type1', title='pbmc68k', dir=RES_DIR)
@@ -106,7 +106,7 @@ tsne_c9<-Rtsne(pca_c9$pca,pca=F)
 km_c9<-kmeans(pca_c9$pca,3,iter.max=150,algorithm="MacQueen")
 tdf_c9<-data.frame(tsne_c9$Y,k=km_c9$cluster)
 .plot_heatmap_and_write_genes(n_clust=3, tsne_df=tdf_c9, mat=c9_m_n_1000, genes=use_genes_n_id[1:1000],
-                              dir=file.path(RES_DIR,"myeloid_genes_3grps.tsv"))
+                              dir=RES_DIR, topic="myeloid_genes_3grps")
 markers <- c("FCER1A","FCGR3A","S100A8","CD1C")
 c9_m <- all_data[[1]]$hg19$mat[tdf_n_1000$k==9,]
 .plot_gene_expression(markers=markers, genes=all_data[[1]]$hg19$gene_symbols, mat=c9_m,
