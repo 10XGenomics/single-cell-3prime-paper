@@ -200,6 +200,7 @@ plot_heatmap_and_write_genes <- function(n_clust,tsne_df,mat,genes,dir) {
     cat("Subsampling\n")
     bc_gene_umi_subsampled <- bc_gene_umi %>% mutate(reads=rbinom(length(reads), reads, subsample_rate))
     cat("Sorting\n")
+    setDT(bc_gene_umi_subsampled)
     setkey(bc_gene_umi_subsampled, barcode, gene)
     cat("Re-aggregating\n")
     bc_gene_counts <- bc_gene_umi_subsampled[barcode %in% orig_mat_barcodes, j=list(count=sum(reads > 0)), by=c('barcode', 'gene')]
